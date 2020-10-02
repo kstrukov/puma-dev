@@ -255,8 +255,15 @@ if test -e .pumaenv; then
 	source .pumaenv
 fi
 
-if test -e Gemfile && bundle exec puma -V &>/dev/null; then
-	exec bundle exec puma -C $CONFIG --tag puma-dev:%s -w $WORKERS -t 0:$THREADS -b unix:%s
+if test -e "$LOCAL_GEMFILE"; then gemfile="$LOCAL_GEMFILE"; else gemfile="Gemfile"; fi
+
+if test -e "$gemfile" && bundle exec --gemfile="$gemfile" puma -V &>/dev/null; then
+	exec bundle exec --gemfile="$gemfile" puma \
+		-C $CONFIG \
+		--tag puma-dev:%s \
+		-w $WORKERS \
+		-t 0:$THREADS \
+		-b unix:%s
 fi
 
 exec puma -C $CONFIG --tag puma-dev:%s -w $WORKERS -t 0:$THREADS -b unix:%s'
